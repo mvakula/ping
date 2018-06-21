@@ -1,0 +1,12 @@
+node_modules
+jspm_packages
+.psc-package
+.psci_modules
+.serverless
+output
+dist
+.cache
+.vscode
+.DS_Store
+.psc-ide-port
+mockimgs

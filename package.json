@@ -1,0 +1,19 @@
+{
+  "name": "ping",
+  "version": "1.0.0",
+  "description": "",
+  "main": "handler.js",
+  "dependencies": {
+    "serverless": "^1.27.3",
+    "serverless-offline": "^3.25.4",
+    "parcel": "^1.9.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "parcel src/index.html",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

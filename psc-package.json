@@ -1,0 +1,14 @@
+{
+  "name": "ping",
+  "set": "sirkkaleipa",
+  "source": "https://github.com/tocoman/package-sets.git",
+  "depends": [
+    "react-basic",
+    "nullable",
+    "now",
+    "milkis",
+    "psci-support",
+    "console",
+    "prelude"
+  ]
+}
