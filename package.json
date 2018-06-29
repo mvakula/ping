@@ -12,7 +12,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "start": "parcel index.html",
+    "start": "parcel index.html --no-cache",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
