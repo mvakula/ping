@@ -30,27 +30,32 @@ type Status =
   }
 
 type State = {
-  status :: Status
+  status :: Array Status
 }
 
 main :: ReactComponent {}
 main = react { displayName: "Main", initialState, receiveProps, render }
   where
     initialState =
-      { status:
+      { status: [
         { statusCode: 0
         , latency: 0.0
-        }
+        } ]
       }
     receiveProps props state setState = launchAff_ do
       let setState' = liftEffect <<< setState
       _ <- liftEffect $ setInterval 1000 $ launchAff_ do
         status <- getPingStatus
-        setState' \s -> s { status = status}
+        setState' \s -> s { status = s.status <> [status]}
       pure unit
 
     render props state setState =
-      R.div { children: [ R.text $ show state.status.latency ]}
+      let
+        latencyDiv status = R.div { children: [ R.text $ show status.latency ]}
+        latencies = (\status -> latencyDiv status) <$> state.status
+      in
+        R.div { children: latencies }
+
 
 getPingStatus :: Aff Status
 getPingStatus = do
