@@ -10,7 +10,9 @@
     "serverless": "^1.27.3",
     "serverless-offline": "^3.25.4"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "node-sass": "^4.9.0"
+  },
   "scripts": {
     "start": "parcel index.html --no-cache",
     "test": "echo \"Error: no test specified\" && exit 1"

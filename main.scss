@@ -1,0 +1,12 @@
+.pings {
+  display: flex;
+  flex-direction: row;
+  height: 200px;
+  width: 800px;
+  .ping-bar {
+    padding: 3px;
+    border: 1px solid black;
+    margin: auto 0 0 1px;
+    width: 5px;
+  }
+}
