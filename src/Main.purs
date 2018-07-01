@@ -7,13 +7,14 @@ import Data.Array as Array
 import Data.Either (Either(..))
 import Data.Foldable (sum)
 import Data.Int (round, toNumber)
+import Data.Maybe (Maybe(..))
 import Effect.Aff (Aff, attempt, launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Class.Console (log, logShow)
 import Effect.Timer (setInterval)
 import Milkis as M
 import Milkis.Impl.Window (windowFetch)
-import React.Basic (ReactComponent, react)
+import React.Basic (JSX, ReactComponent, react)
 import React.Basic.DOM as R
 import Simple.JSON (read)
 import Unsafe.Coerce (unsafeCoerce)
@@ -34,17 +35,15 @@ type Ping =
   }
 
 type State = {
-  pings :: Array Ping
+  pings :: Array (Maybe Ping)
 }
 
 main :: ReactComponent {}
 main = react { displayName: "Main", initialState, receiveProps, render }
   where
+    initialState :: State
     initialState =
-      { pings: [
-        { statusCode: 0
-        , latency: 0.0
-        } ]
+      { pings: [ Nothing ]
       }
     receiveProps props state setState = launchAff_ do
       let setState' = liftEffect <<< setState
@@ -55,22 +54,27 @@ main = react { displayName: "Main", initialState, receiveProps, render }
 
     render props state setState =
       let
-        latencyDiv ping = R.div
-          { className: "ping-bar"
-          , style: R.css { height: ping.latency / 10.0 }
-          , title: show ping.latency
-          }
-        latencies = (\ping -> latencyDiv ping) <$> state.pings
+        pingBars = (\ping -> pingBar ping) <$> state.pings
         avg = R.text $ "Average: " <> (show $ round $ avgLatency state.pings) <> " ms"
       in
         R.div { children:
           [ R.div { children: [ avg ] }
-          , R.div { className: "pings", children: latencies }
+          , R.div { className: "pings", children: pingBars }
           ]
         }
 
+pingBar :: Maybe Ping -> JSX
+pingBar (Just ping) = R.div
+  { className: "ping-bar" <> if ping.statusCode /= 200 then " error" else ""
+  , style: R.css { height: ping.latency / 10.0 }
+  , title: show ping.latency
+  }
+pingBar (Nothing) = R.div
+  { className: "ping-bar error"
+  , title: "error"
+  }
 
-getPingStatus :: Aff Ping
+getPingStatus :: Aff (Maybe Ping)
 getPingStatus = do
   res <- attempt $ fetch (M.URL url) M.defaultFetchOptions
   case res of
@@ -80,17 +84,21 @@ getPingStatus = do
       case read result of
         Right (ping :: Ping) -> do
           log $ unsafeCoerce ping
-          pure ping
+          pure (Just ping)
         Left e -> do
           logShow e
-          pure { statusCode: 0, latency: 0.0}
+          pure Nothing
     Left e -> do
       logShow e
-      pure { statusCode: 0, latency: 0.0}
+      pure Nothing
 
-avgLatency :: Array Ping -> Number
+avgLatency :: Array (Maybe Ping) -> Number
 avgLatency pings =
   sum' / length'
   where
-    sum' = sum $ (\ping -> ping.latency) <$> pings
+    sum' = sum $ (getLatency) <$> pings
     length' = toNumber $ Array.length pings
+    getLatency ping =
+      case ping of
+        Just p -> p.latency
+        Nothing -> 0.0

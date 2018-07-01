@@ -1,5 +1,5 @@
 module Ping where
-  
+
 import Prelude
 
 import Control.Promise (Promise, fromAff)
@@ -47,5 +47,5 @@ ping url = do
     Left e -> do
       pure
           { error: toNullable $ Just e
-          , result: { statusCode: 0, latency: 0.0 }
+          , result: { statusCode: 500, latency: 0.0 }
           }

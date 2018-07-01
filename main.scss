@@ -8,5 +8,8 @@
     border: 1px solid black;
     margin: auto 0 0 1px;
     width: 5px;
+    background: green;
+  } & .error {
+    background: red;
   }
 }
