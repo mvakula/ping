@@ -6,7 +6,7 @@ provider:
 
 functions:
   ping:
-    handler: handler.ping
+    handler: lambdas/ping.handler
     events:
       - http:
           path: ping
