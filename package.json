@@ -5,6 +5,7 @@
   "main": "handler.js",
   "dependencies": {
     "parcel": "^1.9.2",
+    "pg": "^7.4.3",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
     "serverless": "^1.27.3",
