@@ -14,7 +14,7 @@ import Effect.Class.Console (log, logShow)
 import Effect.Timer (setInterval)
 import Milkis as M
 import Milkis.Impl.Window (windowFetch)
-import React.Basic (JSX, ReactComponent, react)
+import React.Basic (JSX, ReactComponent, createElement, react, stateless)
 import React.Basic.DOM as R
 import Simple.JSON (read)
 import Unsafe.Coerce (unsafeCoerce)
@@ -58,7 +58,8 @@ main = react { displayName: "Main", initialState, receiveProps, render }
         avg = R.text $ "Average: " <> (show $ round $ avgLatency state.pings) <> " ms"
       in
         R.div { children:
-          [ R.div { children: [ avg ] }
+          [ createElement addNewEndPoint {}
+          , R.div { children: [ avg ] }
           , R.div { className: "pings", children: pingBars }
           ]
         }
@@ -102,3 +103,10 @@ avgLatency pings =
       case ping of
         Just p -> p.latency
         Nothing -> 0.0
+
+
+addNewEndPoint :: ReactComponent {}
+addNewEndPoint = stateless { displayName: "addNewEndPoint", render }
+  where
+    render _ =
+      R.input {}
