@@ -1,4 +1,4 @@
-const addEndpoint = require('../output/addEndpoint').main
+const addEndpoint = require('../output/AddEndpoint').main
 
 module.exports.handler = async (event, context, callback) => {
   try {
