@@ -118,23 +118,36 @@ addNewEndPoint = react
     initialState = { endpoint: "" }
     receiveProps _ _ _ = pure unit
     render props state setState =
-      R.form
-        { children:
-          [ R.input
-            { type: "text"
-            , onChange:
-                Events.handler
-                  DE.targetValue
-                    \value ->
-                      setState _ { endpoint = fromMaybe "" value }
-            }
-          , R.input
-            { type: "submit"
-            , value: "Submit"
-            }
-          ]
-          , onSubmit: Events.handler
-                        DE.preventDefault $
-                          \_ -> do
-                            pure unit
-        }
+      let
+        handleOnChange =
+          Events.handler
+            DE.targetValue
+              \value ->
+                setState _ { endpoint = fromMaybe "" value }
+        handleOnSubmit =
+          Events.handler
+            DE.preventDefault $
+              \_ -> launchAff_ do
+                let
+                  opts =
+                    { method: M.postMethod
+                    , body: "{\"endpoint\": \"google.fi\"}"
+                    , headers: M.makeHeaders { "Content-Type": "application/json" }
+                    }
+                _ <- attempt $ fetch (M.URL "http://localhost:3000/addEndpoint") opts
+                pure unit
+
+      in
+        R.form
+          { children:
+            [ R.input
+              { type: "text"
+              , onChange: handleOnChange
+              }
+            , R.input
+              { type: "submit"
+              , value: "Submit"
+              }
+            ]
+            , onSubmit: handleOnSubmit
+          }
