@@ -7,15 +7,17 @@ import Data.Array as Array
 import Data.Either (Either(..))
 import Data.Foldable (sum)
 import Data.Int (round, toNumber)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), fromMaybe)
 import Effect.Aff (Aff, attempt, launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Class.Console (log, logShow)
 import Effect.Timer (setInterval)
 import Milkis as M
 import Milkis.Impl.Window (windowFetch)
-import React.Basic (JSX, ReactComponent, createElement, react, stateless)
+import React.Basic (JSX, ReactComponent, createElement, react)
 import React.Basic.DOM as R
+import React.Basic.DOM.Events as DE
+import React.Basic.Events as Events
 import Simple.JSON (read)
 import Unsafe.Coerce (unsafeCoerce)
 
@@ -106,7 +108,33 @@ avgLatency pings =
 
 
 addNewEndPoint :: ReactComponent {}
-addNewEndPoint = stateless { displayName: "addNewEndPoint", render }
+addNewEndPoint = react
+  { displayName: "addNewEndPoint"
+  , initialState
+  , receiveProps
+  , render
+  }
   where
-    render _ =
-      R.input {}
+    initialState = { endpoint: "" }
+    receiveProps _ _ _ = pure unit
+    render props state setState =
+      R.form
+        { children:
+          [ R.input
+            { type: "text"
+            , onChange:
+                Events.handler
+                  DE.targetValue
+                    \value ->
+                      setState _ { endpoint = fromMaybe "" value }
+            }
+          , R.input
+            { type: "submit"
+            , value: "Submit"
+            }
+          ]
+          , onSubmit: Events.handler
+                        DE.preventDefault $
+                          \_ -> do
+                            pure unit
+        }
