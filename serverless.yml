@@ -12,12 +12,21 @@ functions:
           path: ping
           method: get
           cors: true
+
   addEndpoint:
     handler: lambdas/addEndpoint.handler
     events:
       - http:
           path: addEndpoint
           method: post
+          cors: true
+
+  getEndpoints:
+    handler: lambdas/getEndpoints.handler
+    events:
+      - http:
+          path: getEndpoints
+          method: get
           cors: true
 plugins:
   - serverless-offline

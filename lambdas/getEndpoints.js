@@ -1,8 +1,8 @@
-const addEndpoint = require('../output/DB').insertEndpoint
+const getEndpoints = require('../output/DB').getEndpoints
 
 module.exports.handler = async (event, context, callback) => {
   try {
-    const res = await addEndpoint(event.body)()
+    const res = await getEndpoints()
     return res
   } catch (err) {
     console.log('err', err)
