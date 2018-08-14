@@ -18,7 +18,7 @@ import React.Basic (JSX, ReactComponent, createElement, react)
 import React.Basic.DOM as R
 import React.Basic.DOM.Events as DE
 import React.Basic.Events as Events
-import Simple.JSON (read)
+import Simple.JSON (read, writeJSON)
 import Unsafe.Coerce (unsafeCoerce)
 
 
@@ -129,9 +129,10 @@ addNewEndPoint = react
             DE.preventDefault $
               \_ -> launchAff_ do
                 let
+                  body = writeJSON { endpoint: state.endpoint }
                   opts =
                     { method: M.postMethod
-                    , body: "{\"endpoint\": \"google.fi\"}"
+                    , body
                     , headers: M.makeHeaders { "Content-Type": "application/json" }
                     }
                 _ <- attempt $ fetch (M.URL "http://localhost:3000/addEndpoint") opts
