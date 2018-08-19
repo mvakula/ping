@@ -12,21 +12,35 @@ import Effect.Aff (Aff, Error, error)
 import Effect.Class (liftEffect)
 import Effect.Class.Console (logShow)
 import Foreign (Foreign)
+import Node.Encoding (Encoding(..))
+import Node.FS.Aff (readTextFile)
 import Simple.JSON as JSON
 import Types (Endpoint)
 
-clientConfig :: PG.ClientConfig
-clientConfig =
+defaultConfig :: PG.ClientConfig
+defaultConfig =
   { host: "localhost"
   , database: "postgres"
-  , port: 32772
+  , port: 5432
   , user: "postgres"
   , password: ""
   , ssl: false
   }
 
-connectionInfo :: PG.ConnectionInfo
-connectionInfo = PG.connectionInfoFromConfig clientConfig PG.defaultPoolConfig
+readConfig :: Aff PG.ClientConfig
+readConfig = do
+  contents <- readTextFile UTF8 "./config.json"
+  case JSON.readJSON contents of
+    Right (config :: PG.ClientConfig) -> do
+      pure config
+    Left e -> do
+      logShow e
+      pure defaultConfig
+
+getConnectionInfo :: Aff PG.ConnectionInfo
+getConnectionInfo = do
+  clientConfig <- readConfig
+  pure $ PG.connectionInfoFromConfig clientConfig PG.defaultPoolConfig
 
 type Body = {
   endpoint :: String
@@ -52,6 +66,7 @@ insertEndpoint body = fromAff do
 
 insertEndpoint' :: String -> Aff Unit
 insertEndpoint' endpoint = do
+  connectionInfo <- getConnectionInfo
   pool <- liftEffect $ PG.mkPool connectionInfo
   PG.withClient pool $ \c -> do
     let queryStr = PG.Query "INSERT INTO endpoints (url) VALUES ($1)"
@@ -67,6 +82,7 @@ getEndpoints = fromAff do
 
 getEndpoints' :: Aff (Array Endpoint)
 getEndpoints' = do
+  connectionInfo <- getConnectionInfo
   pool <- liftEffect $ PG.mkPool connectionInfo
   PG.withClient pool $ \c -> do
     let queryStr = (PG.Query "SELECT * FROM endpoints" :: PG.Query Endpoint )
@@ -84,6 +100,7 @@ deleteEndpoint body = fromAff do
 
 deleteEndpoint' :: Int -> Aff Unit
 deleteEndpoint' id = do
+  connectionInfo <- getConnectionInfo
   pool <- liftEffect $ PG.mkPool connectionInfo
   PG.withClient pool $ \c -> do
     let queryStr = PG.Query "DELETE FROM endpoints WHERE id in ($1)"
