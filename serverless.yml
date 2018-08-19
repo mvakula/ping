@@ -28,5 +28,14 @@ functions:
           path: getEndpoints
           method: get
           cors: true
+
+  deleteEndpoint:
+    handler: lambdas/deleteEndpoint.handler
+    events:
+      - http:
+          path: deleteEndpoint
+          method: delete
+          cors: true
+
 plugins:
   - serverless-offline

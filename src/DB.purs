@@ -71,3 +71,20 @@ getEndpoints' = do
   PG.withClient pool $ \c -> do
     let queryStr = (PG.Query "SELECT * FROM endpoints" :: PG.Query Endpoint )
     PG.query_ read' queryStr c
+
+deleteEndpoint :: String -> Effect (Promise Res)
+deleteEndpoint body = fromAff do
+  case JSON.readJSON body of
+    Left e -> do
+      logShow e
+      pure { statusCode: 500, body: "Failure" }
+    Right (body' :: { id :: Int }) -> do
+      deleteEndpoint' body'.id
+      pure { statusCode: 200, body: "Success" }
+
+deleteEndpoint' :: Int -> Aff Unit
+deleteEndpoint' id = do
+  pool <- liftEffect $ PG.mkPool connectionInfo
+  PG.withClient pool $ \c -> do
+    let queryStr = PG.Query "DELETE FROM endpoints WHERE id in ($1)"
+    PG.execute queryStr [toSql id] c
