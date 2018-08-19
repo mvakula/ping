@@ -56,21 +56,32 @@ main = react { displayName: "Main", initialState, receiveProps, render }
       pure unit
 
     render props state setState =
+      R.div { children:
+        [ createElement addNewEndPoint {}
+        , status state.pings
+        ]
+      }
+
+status :: Array (Maybe Ping) -> JSX
+status pings =
       let
-        pingBars = (\ping -> pingBar ping) <$> state.pings
-        avg = R.text $ "Average: " <> (show $ round $ avgLatency state.pings) <> " ms"
+        pingBars = (\ping -> pingBar ping) <$> pings
+        avg = R.div { children:
+          [ R.div { children: [ R.text "AVG" ] }
+          , R.div { children: [ R.text $ (show $ round $ avgLatency pings) <> " ms" ] }
+          ]}
       in
-        R.div { children:
-          [ createElement addNewEndPoint {}
-          , R.div { children: [ avg ] }
+        R.div { className: "status", children:
+          [ R.div { className: "avg", children: [ avg ] }
           , R.div { className: "pings", children: pingBars }
           ]
         }
 
+
 pingBar :: Maybe Ping -> JSX
 pingBar (Just ping) = R.div
   { className: "ping-bar" <> if ping.statusCode /= 200 then " error" else ""
-  , style: R.css { height: ping.latency / 10.0 }
+  , style: R.css { height: ping.latency / 20.0 }
   , title: show ping.latency
   }
 pingBar (Nothing) = R.div

@@ -1,15 +1,27 @@
 .pings {
   display: flex;
   flex-direction: row;
-  height: 200px;
+  height: 150px;
   width: 800px;
+  overflow-y: hidden;
   .ping-bar {
-    padding: 3px;
+    padding: 1px;
     border: 1px solid black;
     margin: auto 0 0 1px;
-    width: 5px;
+    width: 1px;
     background: green;
   } & .error {
     background: red;
   }
+}
+
+.status {
+  margin: 20px 10px;
+  display: flex;
+}
+
+.avg {
+  display: flex;
+  align-items: center;
+  margin-right: 50px;
 }
