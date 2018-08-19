@@ -13,6 +13,7 @@ import Effect.Class (liftEffect)
 import Effect.Class.Console (logShow)
 import Foreign (Foreign)
 import Simple.JSON as JSON
+import Types (Endpoint)
 
 clientConfig :: PG.ClientConfig
 clientConfig =
@@ -57,10 +58,6 @@ insertEndpoint' endpoint = do
     PG.execute queryStr [toSql endpoint] c
     liftEffect $ PG.end pool
 
-type Endpoint =
-  { id :: Int
-  , url :: String
-  }
 
 getEndpoints :: Effect (Promise { statusCode :: Int, body :: (Array Endpoint) })
 getEndpoints = fromAff do

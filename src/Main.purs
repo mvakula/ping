@@ -2,6 +2,7 @@ module Main where
 
 import Prelude
 
+import Types (Endpoint)
 import Data.Array ((:))
 import Data.Array as Array
 import Data.Either (Either(..))
@@ -88,6 +89,25 @@ getPingStatus = do
         Right (ping :: Ping) -> do
           log $ unsafeCoerce ping
           pure (Just ping)
+        Left e -> do
+          logShow e
+          pure Nothing
+    Left e -> do
+      logShow e
+      pure Nothing
+
+getEndpoints :: Aff (Maybe (Array Endpoint))
+getEndpoints = do
+  res <- attempt $ fetch (M.URL "http://localhost:3000/getEndpoints") M.defaultFetchOptions
+  case res of
+    Right response -> do
+      let statusCode = M.statusCode response
+      result <- M.json response
+      log $ unsafeCoerce result
+      case read result of
+        Right (endpoints :: Array (Endpoint)) -> do
+          log $ unsafeCoerce endpoints
+          pure (Just endpoints)
         Left e -> do
           logShow e
           pure Nothing
