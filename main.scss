@@ -18,9 +18,22 @@
 .status {
   margin: 20px 10px;
   display: flex;
+  border-bottom: 1px solid #EEE;
+  padding-bottom: 40px;
+}
+
+.name, .avg {
+  max-width: 100px;
+  min-width: 100px;
 }
 
 .avg {
+  display: flex;
+  align-items: center;
+  margin-right: 50px;
+}
+
+.name {
   display: flex;
   align-items: center;
   margin-right: 50px;

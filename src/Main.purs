@@ -2,7 +2,6 @@ module Main where
 
 import Prelude
 
-import Types (Endpoint)
 import Data.Array ((:))
 import Data.Array as Array
 import Data.Either (Either(..))
@@ -20,14 +19,12 @@ import React.Basic.DOM as R
 import React.Basic.DOM.Events as DE
 import React.Basic.Events as Events
 import Simple.JSON (read, writeJSON)
+import Types (Endpoint)
 import Unsafe.Coerce (unsafeCoerce)
 
 
 baseUrl :: String
-baseUrl = "http://localhost:3000/ping/"
-
-url :: String
-url = baseUrl <> "?url=https://google.com"
+baseUrl = "http://localhost:3000/ping/?url="
 
 fetch :: M.Fetch
 fetch = M.fetch windowFetch
@@ -37,42 +34,59 @@ type Ping =
   , latency :: Number
   }
 
-type State = {
-  pings :: Array (Maybe Ping)
-}
+type State = { endpoints :: Array Endpoint }
 
 main :: ReactComponent {}
 main = react { displayName: "Main", initialState, receiveProps, render }
   where
     initialState :: State
-    initialState =
-      { pings: [ Nothing ]
-      }
+    initialState = { endpoints: [] }
     receiveProps props state setState = launchAff_ do
       let setState' = liftEffect <<< setState
-      _ <- liftEffect $ setInterval 1500 $ launchAff_ do
-        ping <- getPingStatus
-        setState' \s -> s { pings = ping : Array.take 30 s.pings }
-      pure unit
+      endpoints <- getEndpoints
+      case endpoints of
+        Just endpoints' ->
+          setState' \s -> s { endpoints = endpoints'}
+        Nothing ->
+          pure unit
 
     render props state setState =
       R.div { children:
         [ createElement addNewEndPoint {}
-        , status state.pings
-        ]
+        ] <> ((\endpoint -> createElement status { endpoint }) <$> state.endpoints)
       }
 
-status :: Array (Maybe Ping) -> JSX
-status pings =
+status :: ReactComponent { endpoint :: Endpoint }
+status = react
+  { displayName: "Status"
+  , initialState
+  , receiveProps
+  , render
+  }
+  where
+    initialState = { pings: [ Nothing ] }
+    receiveProps props state setState = launchAff_ do
+      let setState' = liftEffect <<< setState
+      _ <- liftEffect $ setInterval 1500 $ launchAff_ do
+        ping <- getPingStatus props.endpoint.url
+        setState' \s -> s { pings = ping : Array.take 30 s.pings }
+      pure unit
+    render props state setState =
       let
-        pingBars = (\ping -> pingBar ping) <$> pings
+        pingBars = (\ping -> pingBar ping) <$> state.pings
         avg = R.div { children:
           [ R.div { children: [ R.text "AVG" ] }
-          , R.div { children: [ R.text $ (show $ round $ avgLatency pings) <> " ms" ] }
+          , R.div { children: [ R.text $ (show $ round $ avgLatency state.pings) <> " ms" ] }
           ]}
+        name = R.div { children:
+          [ R.div { children: [ R.text "URL" ] }
+          , R.div { children: [ R.text props.endpoint.url ] }
+          ]}
+
       in
         R.div { className: "status", children:
-          [ R.div { className: "avg", children: [ avg ] }
+          [ R.div { className: "name", children: [ name ] }
+          , R.div { className: "avg", children: [ avg ] }
           , R.div { className: "pings", children: pingBars }
           ]
         }
@@ -89,9 +103,9 @@ pingBar (Nothing) = R.div
   , title: "error"
   }
 
-getPingStatus :: Aff (Maybe Ping)
-getPingStatus = do
-  res <- attempt $ fetch (M.URL url) M.defaultFetchOptions
+getPingStatus :: String -> Aff (Maybe Ping)
+getPingStatus url = do
+  res <- attempt $ fetch (M.URL (baseUrl <> url)) M.defaultFetchOptions
   case res of
     Right response -> do
       let statusCode = M.statusCode response
