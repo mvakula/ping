@@ -10,7 +10,7 @@ import Data.Int (round, toNumber)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Effect.Aff (Aff, attempt, launchAff_)
 import Effect.Class (liftEffect)
-import Effect.Class.Console (log, logShow)
+import Effect.Class.Console (logShow)
 import Effect.Timer (setInterval)
 import Milkis as M
 import Milkis.Impl.Window (windowFetch)
@@ -20,7 +20,6 @@ import React.Basic.DOM.Events as DE
 import React.Basic.Events as Events
 import Simple.JSON (read, writeJSON)
 import Types (Endpoint)
-import Unsafe.Coerce (unsafeCoerce)
 
 
 baseUrl :: String
@@ -112,7 +111,6 @@ getPingStatus url = do
       result <- M.json response
       case read result of
         Right (ping :: Ping) -> do
-          log $ unsafeCoerce ping
           pure (Just ping)
         Left e -> do
           logShow e
@@ -128,10 +126,8 @@ getEndpoints = do
     Right response -> do
       let statusCode = M.statusCode response
       result <- M.json response
-      log $ unsafeCoerce result
       case read result of
         Right (endpoints :: Array (Endpoint)) -> do
-          log $ unsafeCoerce endpoints
           pure (Just endpoints)
         Left e -> do
           logShow e
