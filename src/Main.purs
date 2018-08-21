@@ -11,7 +11,7 @@ import Data.Maybe (Maybe(..), fromMaybe)
 import Effect.Aff (Aff, attempt, launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Class.Console (logShow)
-import Effect.Timer (setInterval)
+import Effect.Timer (IntervalId, clearInterval, setInterval)
 import Milkis as M
 import Milkis.Impl.Window (windowFetch)
 import React.Basic (JSX, ReactComponent, createElement, react)
@@ -42,6 +42,19 @@ main = react { displayName: "Main", initialState, receiveProps, render }
     initialState = { endpoints: [] }
     receiveProps props state setState = launchAff_ do
       let setState' = liftEffect <<< setState
+      refreshEndpoints setState'
+    render props state setState =
+      let
+        setState' = liftEffect <<< setState
+        refreshEndpoints' = refreshEndpoints setState'
+      in
+        R.div { children:
+          [ createElement addNewEndPoint {}
+          ] <> ((\endpoint -> createElement status { endpoint, refreshEndpoints' }) <$> state.endpoints)
+        }
+
+refreshEndpoints :: ((State -> State) -> Aff Unit) -> Aff Unit
+refreshEndpoints setState' = do
       endpoints <- getEndpoints
       case endpoints of
         Just endpoints' ->
@@ -49,13 +62,8 @@ main = react { displayName: "Main", initialState, receiveProps, render }
         Nothing ->
           pure unit
 
-    render props state setState =
-      R.div { children:
-        [ createElement addNewEndPoint {}
-        ] <> ((\endpoint -> createElement status { endpoint }) <$> state.endpoints)
-      }
 
-status :: ReactComponent { endpoint :: Endpoint }
+status :: ReactComponent { endpoint :: Endpoint, refreshEndpoints' :: Aff Unit }
 status = react
   { displayName: "Status"
   , initialState
@@ -63,12 +71,16 @@ status = react
   , render
   }
   where
-    initialState = { pings: [ Nothing ] }
+    initialState =
+      { pings: [ Nothing ]
+      , timerId : Nothing
+      }
     receiveProps props state setState = launchAff_ do
       let setState' = liftEffect <<< setState
-      _ <- liftEffect $ setInterval 1500 $ launchAff_ do
+      intervalId <- liftEffect $ setInterval 1500 $ launchAff_ do
         ping <- getPingStatus props.endpoint.url
         setState' \s -> s { pings = ping : Array.take 30 s.pings }
+      setState' \s -> s { timerId = (Just (intervalId)) }
       pure unit
     render props state setState =
       let
@@ -81,11 +93,31 @@ status = react
           [ R.div { children: [ R.text "URL" ] }
           , R.div { children: [ R.text props.endpoint.url ] }
           ]}
+        deleteBtn = R.button
+          { children: [ R.text "Delete" ]
+          , onClick: Events.handler_ do
+                      launchAff_ do
+                        res <- deleteEndpoint props.endpoint.id
+                        case res of
+                          (Just success) -> do
+                            clearTimer state.timerId
+                            props.refreshEndpoints'
+                          Nothing -> do
+                            pure unit
+          }
+        clearTimer :: Maybe IntervalId -> Aff Unit
+        clearTimer timerId =
+          case timerId of
+            (Just timerId') -> do
+              liftEffect $ clearInterval timerId'
+            Nothing -> do
+              pure unit
 
       in
         R.div { className: "status", children:
           [ R.div { className: "name", children: [ name ] }
           , R.div { className: "avg", children: [ avg ] }
+          , R.div { className: "avg", children: [ deleteBtn ] }
           , R.div { className: "pings", children: pingBars }
           ]
         }
@@ -131,6 +163,29 @@ getEndpoints = do
           pure (Just endpoints)
         Left e -> do
           logShow e
+          pure Nothing
+    Left e -> do
+      logShow e
+      pure Nothing
+
+deleteEndpoint :: Int -> Aff (Maybe Int)
+deleteEndpoint id = do
+  let
+    body = writeJSON { id }
+    opts =
+      { method: M.deleteMethod
+      , body
+      , headers: M.makeHeaders { "Content-Type": "application/json" }
+      }
+  res <- attempt $ fetch (M.URL "http://localhost:3000/deleteEndpoint") opts
+  case res of
+    Right response -> do
+      let statusCode = M.statusCode response
+      if statusCode == 200
+        then
+          pure $ (Just statusCode)
+        else do
+          logShow statusCode
           pure Nothing
     Left e -> do
       logShow e
