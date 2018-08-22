@@ -49,7 +49,7 @@ main = react { displayName: "Main", initialState, receiveProps, render }
         refreshEndpoints' = refreshEndpoints setState'
       in
         R.div { children:
-          [ createElement addNewEndPoint {}
+          [ createElement addNewEndPoint { refreshEndpoints' }
           ] <> ((\endpoint -> createElement status { endpoint, refreshEndpoints' }) <$> state.endpoints)
         }
 
@@ -99,7 +99,7 @@ status = react
                       launchAff_ do
                         res <- deleteEndpoint props.endpoint.id
                         case res of
-                          (Just success) -> do
+                          Just success -> do
                             clearTimer state.timerId
                             props.refreshEndpoints'
                           Nothing -> do
@@ -203,7 +203,7 @@ avgLatency pings =
         Nothing -> 0.0
 
 
-addNewEndPoint :: ReactComponent {}
+addNewEndPoint :: ReactComponent { refreshEndpoints' :: Aff Unit }
 addNewEndPoint = react
   { displayName: "addNewEndPoint"
   , initialState
@@ -231,8 +231,12 @@ addNewEndPoint = react
                     , body
                     , headers: M.makeHeaders { "Content-Type": "application/json" }
                     }
-                _ <- attempt $ fetch (M.URL "http://localhost:3000/addEndpoint") opts
-                pure unit
+                res <- attempt $ fetch (M.URL "http://localhost:3000/addEndpoint") opts
+                case res of
+                  Right response -> do
+                    props.refreshEndpoints'
+                  Left e -> do
+                    logShow e
 
       in
         R.form
