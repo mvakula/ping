@@ -18,6 +18,14 @@ functions:
     events:
       - schedule: rate(1 minute)
 
+  getPings:
+    handler: lambdas/getPings.handler
+    events:
+      - http:
+          path: getPings
+          method: get
+          cors: true
+
   addEndpoint:
     handler: lambdas/addEndpoint.handler
     events:

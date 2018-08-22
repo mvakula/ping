@@ -20,6 +20,7 @@ import Node.FS.Aff (readTextFile)
 import Ping as Ping
 import Simple.JSON as JSON
 import Types (Endpoint)
+import Types as Types
 
 defaultConfig :: PG.ClientConfig
 defaultConfig =
@@ -111,6 +112,35 @@ getEndpoints' = do
   PG.withClient pool $ \c -> do
     let queryStr = (PG.Query "SELECT * FROM endpoints" :: PG.Query Endpoint )
     PG.query_ read' queryStr c
+
+type PingColumns =
+  { id :: Int
+  , endpoint_id :: Int
+  , latency :: Int
+  , status_code :: Int
+  }
+
+getPings' :: Aff (Array Types.PingData)
+getPings' = do
+  connectionInfo <- getConnectionInfo
+  pool <- liftEffect $ PG.mkPool connectionInfo
+  PG.withClient pool $ \c -> do
+    let queryStr = (PG.Query "SELECT * FROM pings" :: PG.Query PingColumns )
+    pings <- PG.query_ read' queryStr c
+    pure $ pingsFromColumns <$> pings
+
+pingsFromColumns :: PingColumns -> Types.PingData
+pingsFromColumns p =
+  { id: p.id
+  , endpointId: p.endpoint_id
+  , latency: p.latency
+  , statusCode: p.status_code
+  }
+
+getPings :: Effect (Promise (Array Types.PingData))
+getPings = fromAff do
+  pings <- getPings'
+  pure pings
 
 deleteEndpoint :: String -> Effect (Promise Res)
 deleteEndpoint body = fromAff do
