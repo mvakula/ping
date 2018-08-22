@@ -5,6 +5,8 @@ import Prelude
 import Control.Promise (Promise, fromAff)
 import Data.Bifunctor (lmap)
 import Data.Either (Either(..))
+import Data.Int (round)
+import Data.Traversable (for)
 import Database.Postgres as PG
 import Database.Postgres.SqlValue (toSql)
 import Effect (Effect)
@@ -12,8 +14,10 @@ import Effect.Aff (Aff, Error, error)
 import Effect.Class (liftEffect)
 import Effect.Class.Console (logShow)
 import Foreign (Foreign)
+import Milkis as M
 import Node.Encoding (Encoding(..))
 import Node.FS.Aff (readTextFile)
+import Ping as Ping
 import Simple.JSON as JSON
 import Types (Endpoint)
 
@@ -73,6 +77,26 @@ insertEndpoint' endpoint = do
     PG.execute queryStr [toSql endpoint] c
     liftEffect $ PG.end pool
 
+insertPing :: { endpointId :: Int, latency :: Int, statusCode :: Int } -> Aff Unit
+insertPing { endpointId, latency, statusCode } = do
+  connectionInfo <- getConnectionInfo
+  pool <- liftEffect $ PG.mkPool connectionInfo
+  PG.withClient pool $ \c -> do
+    let queryStr = PG.Query "INSERT INTO pings (endpoint_id, latency, status_code) VALUES ($1, $2, $3)"
+    PG.execute queryStr [toSql endpointId, toSql latency, toSql statusCode] c
+    liftEffect $ PG.end pool
+
+pingServices :: Effect (Promise Unit)
+pingServices = fromAff do
+  endpoints <- getEndpoints'
+  _ <- for endpoints \endpoint -> do
+    ping <- Ping.ping (M.URL endpoint.url)
+    insertPing
+      { endpointId: endpoint.id
+      , latency: round ping.result.latency
+      , statusCode: ping.result.statusCode
+      }
+  pure unit
 
 getEndpoints :: Effect (Promise { statusCode :: Int, body :: (Array Endpoint) })
 getEndpoints = fromAff do

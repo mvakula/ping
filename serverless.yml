@@ -13,6 +13,11 @@ functions:
           method: get
           cors: true
 
+  pingServices:
+    handler: lambdas/pingServices.handler
+    events:
+      - schedule: rate(1 minute)
+
   addEndpoint:
     handler: lambdas/addEndpoint.handler
     events:
