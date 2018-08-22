@@ -18,7 +18,7 @@ import React.Basic.DOM as R
 import React.Basic.DOM.Events as DE
 import React.Basic.Events as Events
 import Simple.JSON (read, writeJSON)
-import Types (Endpoint)
+import Types (Endpoint, Ping)
 
 
 baseUrl :: String
@@ -26,11 +26,6 @@ baseUrl = "http://localhost:3000/ping/?url="
 
 fetch :: M.Fetch
 fetch = M.fetch windowFetch
-
-type Ping =
-  { statusCode :: Int
-  , latency :: Int
-  }
 
 type State = { endpoints :: Array Endpoint }
 
