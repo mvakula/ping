@@ -6,7 +6,6 @@ import Data.Array ((:))
 import Data.Array as Array
 import Data.Either (Either(..))
 import Data.Foldable (sum)
-import Data.Int (round, toNumber)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Effect.Aff (Aff, attempt, launchAff_)
 import Effect.Class (liftEffect)
@@ -30,7 +29,7 @@ fetch = M.fetch windowFetch
 
 type Ping =
   { statusCode :: Int
-  , latency :: Number
+  , latency :: Int
   }
 
 type State = { endpoints :: Array Endpoint }
@@ -87,7 +86,7 @@ status = react
         pingBars = (\ping -> pingBar ping) <$> state.pings
         avg = R.div { children:
           [ R.div { children: [ R.text "AVG" ] }
-          , R.div { children: [ R.text $ (show $ round $ avgLatency state.pings) <> " ms" ] }
+          , R.div { children: [ R.text $ (show $ avgLatency state.pings) <> " ms" ] }
           ]}
         name = R.div { children:
           [ R.div { children: [ R.text "URL" ] }
@@ -126,7 +125,7 @@ status = react
 pingBar :: Maybe Ping -> JSX
 pingBar (Just ping) = R.div
   { className: "ping-bar" <> if ping.statusCode /= 200 then " error" else ""
-  , style: R.css { height: ping.latency / 20.0 }
+  , style: R.css { height: ping.latency / 20 }
   , title: show ping.latency
   }
 pingBar (Nothing) = R.div
@@ -191,16 +190,16 @@ deleteEndpoint id = do
       logShow e
       pure Nothing
 
-avgLatency :: Array (Maybe Ping) -> Number
+avgLatency :: Array (Maybe Ping) -> Int
 avgLatency pings =
   sum' / length'
   where
     sum' = sum $ (getLatency) <$> pings
-    length' = toNumber $ Array.length pings
+    length' = Array.length pings
     getLatency ping =
       case ping of
         Just p -> p.latency
-        Nothing -> 0.0
+        Nothing -> 0
 
 
 addNewEndPoint :: ReactComponent { refreshEndpoints' :: Aff Unit }
