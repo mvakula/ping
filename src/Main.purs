@@ -9,6 +9,7 @@ import Data.Maybe (Maybe(..), fromMaybe)
 import Effect.Aff (Aff, attempt, launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Class.Console (logShow)
+import Effect.Timer (setInterval)
 import Milkis as M
 import Milkis.Impl.Window (windowFetch)
 import React.Basic (JSX, ReactComponent, createElement, react, stateless)
@@ -41,6 +42,8 @@ main = react { displayName: "Main", initialState, receiveProps, render }
     receiveProps props state setState = launchAff_ do
       let setState' = liftEffect <<< setState
       refreshEndpoints setState'
+      intervalId <- liftEffect $ setInterval 30000 $ launchAff_ do
+        refreshPings setState'
       refreshPings setState'
     render props state setState =
       let
