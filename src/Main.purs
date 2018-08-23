@@ -11,7 +11,7 @@ import Effect.Class (liftEffect)
 import Effect.Class.Console (logShow)
 import Milkis as M
 import Milkis.Impl.Window (windowFetch)
-import React.Basic (JSX, ReactComponent, createElement, react)
+import React.Basic (JSX, ReactComponent, createElement, react, stateless)
 import React.Basic.DOM as R
 import React.Basic.DOM.Events as DE
 import React.Basic.Events as Events
@@ -72,16 +72,12 @@ refreshPings setState' = do
       pure unit
 
 status :: ReactComponent { endpoint :: Endpoint, refreshEndpoints' :: Aff Unit, pings :: Array PingData }
-status = react
+status = stateless
   { displayName: "Status"
-  , initialState
-  , receiveProps
   , render
   }
   where
-    initialState = {}
-    receiveProps props state setState = pure unit
-    render props state setState =
+    render props =
       let
         pingBars = (\ping -> pingBar ping) <$> props.pings
         avg = R.div { children:
