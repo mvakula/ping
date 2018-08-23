@@ -19,6 +19,7 @@ import React.Basic.DOM.Events as DE
 import React.Basic.Events as Events
 import Simple.JSON (read, writeJSON)
 import Types (Endpoint, Ping)
+import Types as Types
 
 
 baseUrl :: String
@@ -27,16 +28,23 @@ baseUrl = "http://localhost:3000/ping/?url="
 fetch :: M.Fetch
 fetch = M.fetch windowFetch
 
-type State = { endpoints :: Array Endpoint }
+type State =
+  { endpoints :: Array Endpoint
+  , pings :: Array Types.PingData
+  }
 
 main :: ReactComponent {}
 main = react { displayName: "Main", initialState, receiveProps, render }
   where
     initialState :: State
-    initialState = { endpoints: [] }
+    initialState =
+      { endpoints: []
+      , pings: []
+      }
     receiveProps props state setState = launchAff_ do
       let setState' = liftEffect <<< setState
       refreshEndpoints setState'
+      refreshPings setState'
     render props state setState =
       let
         setState' = liftEffect <<< setState
@@ -56,6 +64,14 @@ refreshEndpoints setState' = do
         Nothing ->
           pure unit
 
+refreshPings :: ((State -> State) -> Aff Unit) -> Aff Unit
+refreshPings setState' = do
+  pings <- getPings
+  case pings of
+    Just pings'  ->
+      setState' \s -> s { pings = pings' }
+    Nothing ->
+      pure unit
 
 status :: ReactComponent { endpoint :: Endpoint, refreshEndpoints' :: Aff Unit }
 status = react
@@ -155,6 +171,23 @@ getEndpoints = do
       case read result of
         Right (endpoints :: Array (Endpoint)) -> do
           pure (Just endpoints)
+        Left e -> do
+          logShow e
+          pure Nothing
+    Left e -> do
+      logShow e
+      pure Nothing
+
+getPings :: Aff (Maybe (Array Types.PingData))
+getPings = do
+  res <- attempt $ fetch (M.URL "http://localhost:3000/getPings") M.defaultFetchOptions
+  case res of
+    Right response -> do
+      let statusCode = M.statusCode response
+      result <- M.json response
+      case read result of
+        Right (pings :: Array (Types.PingData)) -> do
+          pure (Just pings)
         Left e -> do
           logShow e
           pure Nothing
