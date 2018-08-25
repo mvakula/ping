@@ -11,3 +11,5 @@ dist
 .psc-ide-port
 mockimgs
 config.json
+.envrc
+.env
