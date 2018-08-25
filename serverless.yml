@@ -3,6 +3,7 @@ service: ping
 provider:
   name: aws
   runtime: nodejs8.10
+  region: eu-central-1
 
   pingServices:
     handler: lambdas/pingServices.handler
