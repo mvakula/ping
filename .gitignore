@@ -13,3 +13,4 @@ mockimgs
 config.json
 .envrc
 .env
+/env

@@ -10,8 +10,10 @@ import Effect.Aff (Aff, attempt, launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Class.Console (logShow)
 import Effect.Timer (setInterval)
+import Effect.Unsafe (unsafePerformEffect)
 import Milkis as M
 import Milkis.Impl.Window (windowFetch)
+import Node.Process (lookupEnv)
 import React.Basic (JSX, ReactComponent, createElement, react, stateless)
 import React.Basic.DOM as R
 import React.Basic.DOM.Events as DE
@@ -21,7 +23,13 @@ import Types (Endpoint, PingData)
 
 
 baseUrl :: String
-baseUrl = "http://localhost:3000/ping/?url="
+baseUrl = unsafePerformEffect do
+  serverUrl <- lookupEnv "SERVER_URL"
+  case (serverUrl) of
+    Just envVar ->
+      pure envVar
+    Nothing ->
+      pure "http://localhost:3000/"
 
 fetch :: M.Fetch
 fetch = M.fetch windowFetch
@@ -121,7 +129,7 @@ pingBar ping = R.div
 
 getEndpoints :: Aff (Maybe (Array Endpoint))
 getEndpoints = do
-  res <- attempt $ fetch (M.URL "http://localhost:3000/getEndpoints") M.defaultFetchOptions
+  res <- attempt $ fetch (M.URL $ baseUrl <> "getEndpoints") M.defaultFetchOptions
   case res of
     Right response -> do
       let statusCode = M.statusCode response
@@ -138,7 +146,7 @@ getEndpoints = do
 
 getPings :: Aff (Maybe (Array PingData))
 getPings = do
-  res <- attempt $ fetch (M.URL "http://localhost:3000/getPings") M.defaultFetchOptions
+  res <- attempt $ fetch (M.URL $ baseUrl <> "getPings") M.defaultFetchOptions
   case res of
     Right response -> do
       let statusCode = M.statusCode response
@@ -162,7 +170,7 @@ deleteEndpoint id = do
       , body
       , headers: M.makeHeaders { "Content-Type": "application/json" }
       }
-  res <- attempt $ fetch (M.URL "http://localhost:3000/deleteEndpoint") opts
+  res <- attempt $ fetch (M.URL $ baseUrl <> "deleteEndpoint") opts
   case res of
     Right response -> do
       let statusCode = M.statusCode response
@@ -211,7 +219,7 @@ addNewEndPoint = react
                     , body
                     , headers: M.makeHeaders { "Content-Type": "application/json" }
                     }
-                res <- attempt $ fetch (M.URL "http://localhost:3000/addEndpoint") opts
+                res <- attempt $ fetch (M.URL $ baseUrl <> "addEndpoint") opts
                 case res of
                   Right response -> do
                     props.refreshEndpoints'
