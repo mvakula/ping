@@ -99,10 +99,10 @@ pingServices = fromAff do
       }
   pure unit
 
-getEndpoints :: Effect (Promise { statusCode :: Int, body :: (Array Endpoint) })
+getEndpoints :: Effect (Promise (Array Endpoint) )
 getEndpoints = fromAff do
   endpoints <- getEndpoints'
-  pure { statusCode: 200, body: endpoints }
+  pure endpoints
 
 
 getEndpoints' :: Aff (Array Endpoint)
