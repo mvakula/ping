@@ -1,17 +1,8 @@
-service: serverless-hello-world
+service: ping
 
 provider:
   name: aws
   runtime: nodejs8.10
-
-functions:
-  ping:
-    handler: lambdas/ping.handler
-    events:
-      - http:
-          path: ping
-          method: get
-          cors: true
 
   pingServices:
     handler: lambdas/pingServices.handler
