@@ -4,6 +4,7 @@ provider:
   name: aws
   runtime: nodejs8.10
   region: eu-central-1
+  stage: dev
 
   pingServices:
     handler: lambdas/pingServices.handler
