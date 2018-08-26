@@ -10,7 +10,8 @@
     margin: auto 0 0 1px;
     width: 1px;
     background: green;
-  } & .error {
+  }
+  & .error {
     background: red;
   }
 }
@@ -33,11 +34,14 @@
   font-weight: bold;
 }
 
-.delete-btn-container, .avg {
+.delete-btn-container,
+.avg {
   min-width: 100px;
 }
 
-.name-and-url, .avg, .delete-btn-container {
+.name-and-url,
+.avg,
+.delete-btn-container {
   display: flex;
   align-items: center;
   margin-right: 50px;
@@ -52,10 +56,10 @@ form.add-endpoint {
     .submit {
       max-width: 60px;
     }
-    & > label {
+    &>label {
       flex: 1;
     }
-    & > input {
+    &>input {
       flex: 2;
     }
   }
