@@ -5,7 +5,6 @@ import Prelude
 import Control.Promise (Promise, fromAff)
 import Data.Bifunctor (lmap)
 import Data.Either (Either(..))
-import Data.Int (round)
 import Data.Traversable (for)
 import Database.Postgres as PG
 import Database.Postgres.SqlValue (toSql)
@@ -94,8 +93,8 @@ pingServices = fromAff do
     ping <- Ping.ping (M.URL endpoint.url)
     insertPing
       { endpointId: endpoint.id
-      , latency: round ping.result.latency
-      , statusCode: ping.result.statusCode
+      , latency: ping.latency
+      , statusCode: ping.statusCode
       }
   pure unit
 

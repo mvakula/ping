@@ -2,29 +2,17 @@ module Ping where
 
 import Prelude
 
-import Control.Promise (Promise, fromAff)
 import Data.DateTime.Instant (unInstant)
 import Data.Either (Either(..))
-import Data.Maybe (Maybe(..))
+import Data.Int (round)
 import Data.Newtype (unwrap)
-import Data.Nullable (Nullable, toNullable)
-import Effect (Effect)
-import Effect.Aff (Aff, Error, attempt)
+import Effect.Aff (Aff, attempt)
 import Effect.Class (liftEffect)
+import Effect.Class.Console (logShow)
 import Effect.Now (now)
 import Milkis as M
 import Milkis.Impl.Node (nodeFetch)
-
-main :: M.URL -> Effect (Promise PingData)
-main pingUrl = fromAff do ping pingUrl
-
-type PingData =
-  { error :: Nullable Error
-  , result ::
-    { statusCode :: Int
-    , latency :: Number
-    }
-  }
+import Types as Types
 
 fetch :: M.Fetch
 fetch = M.fetch nodeFetch
@@ -32,20 +20,15 @@ fetch = M.fetch nodeFetch
 nowMillis :: Aff Number
 nowMillis = unwrap <<< unInstant <$> liftEffect now
 
-ping :: M.URL -> Aff PingData
+ping :: M.URL -> Aff Types.Ping
 ping url = do
   startTime <- nowMillis
   result <- attempt $ fetch url M.defaultFetchOptions
   endTime <- nowMillis
-  let latency = endTime - startTime
+  let latency = round $ endTime - startTime
   case result of
     Right res -> do
-      pure
-          { error: toNullable Nothing
-          , result: { statusCode: M.statusCode res, latency: latency }
-          }
+      pure { statusCode: M.statusCode res, latency: latency }
     Left e -> do
-      pure
-          { error: toNullable $ Just e
-          , result: { statusCode: 500, latency: 0.0 }
-          }
+      logShow e
+      pure { statusCode: 500, latency: 0 }
