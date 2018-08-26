@@ -10,10 +10,8 @@ import Effect.Aff (Aff, attempt, launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Class.Console (logShow)
 import Effect.Timer (setInterval)
-import Effect.Unsafe (unsafePerformEffect)
 import Milkis as M
 import Milkis.Impl.Window (windowFetch)
-import Node.Process (lookupEnv)
 import React.Basic (JSX, ReactComponent, createElement, react, stateless)
 import React.Basic.DOM as R
 import React.Basic.DOM.Events as DE
@@ -21,15 +19,7 @@ import React.Basic.Events as Events
 import Simple.JSON (read, writeJSON)
 import Types (Endpoint, PingData)
 
-
-baseUrl :: String
-baseUrl = unsafePerformEffect do
-  serverUrl <- lookupEnv "SERVER_URL"
-  case (serverUrl) of
-    Just envVar ->
-      pure envVar
-    Nothing ->
-      pure "http://localhost:3000/"
+foreign import baseUrl :: String
 
 fetch :: M.Fetch
 fetch = M.fetch windowFetch
