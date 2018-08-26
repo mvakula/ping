@@ -64,17 +64,17 @@ insertEndpoint body = fromAff do
     Left e -> do
       logShow e
       pure { statusCode: 500, body: "Failure" }
-    Right (body' :: Body) -> do
-      insertEndpoint' body'.endpoint
+    Right (body' :: Types.EndpointBody ()) -> do
+      insertEndpoint' body'
       pure { statusCode: 200, body: "Success" }
 
-insertEndpoint' :: String -> Aff Unit
-insertEndpoint' endpoint = do
+insertEndpoint' :: Types.EndpointBody () -> Aff Unit
+insertEndpoint' { url, name } = do
   connectionInfo <- getConnectionInfo
   pool <- liftEffect $ PG.mkPool connectionInfo
   PG.withClient pool $ \c -> do
-    let queryStr = PG.Query "INSERT INTO endpoints (url) VALUES ($1)"
-    PG.execute queryStr [toSql endpoint] c
+    let queryStr = PG.Query "INSERT INTO endpoints (url, name) VALUES ($1, $2)"
+    PG.execute queryStr [toSql url, toSql name] c
     liftEffect $ PG.end pool
 
 insertPing :: { endpointId :: Int, latency :: Int, statusCode :: Int } -> Aff Unit

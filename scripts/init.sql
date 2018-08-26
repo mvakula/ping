@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS endpoints (
   id serial PRIMARY KEY,
-  url text UNIQUE,
+  name text NOT NULL,
+  url text UNIQUE NOT NULL,
   timestamp timestamp DEFAULT current_timestamp
 );
 

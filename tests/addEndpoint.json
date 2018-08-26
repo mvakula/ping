@@ -1,3 +1,4 @@
 {
-  "endpoint": "https://google.com"
+  "url": "https://google.com",
+  "name": "google.com"
 }

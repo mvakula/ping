@@ -1,10 +1,12 @@
 module Types where
 
-
-type Endpoint =
-  { id :: Int
+type EndpointBody r =
+  { name :: String
   , url :: String
+  | r
   }
+
+type Endpoint = EndpointBody ( id :: Int )
 
 type Ping =
   { statusCode :: Int
