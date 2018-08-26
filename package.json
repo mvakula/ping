@@ -17,9 +17,11 @@
   "scripts": {
     "start": "parcel index.html --no-cache",
     "api": "sls offline start",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "pulp build && parcel build index.html",
+    "deploy:client": "aws s3 sync --acl public-read dist s3://$CLIENT_BUCKET --delete",
+    "deploy:server": "sls deploy"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "author": "Mika Vakula"
 }
