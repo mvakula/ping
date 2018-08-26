@@ -22,18 +22,22 @@
   padding-bottom: 40px;
 }
 
-.name, .avg {
-  max-width: 100px;
+.name-and-url {
+  min-width: 200px;
+  .url {
+    color: grey;
+  }
+}
+
+.title {
+  font-weight: bold;
+}
+
+.delete-btn-container, .avg {
   min-width: 100px;
 }
 
-.avg {
-  display: flex;
-  align-items: center;
-  margin-right: 50px;
-}
-
-.name {
+.name-and-url, .avg, .delete-btn-container {
   display: flex;
   align-items: center;
   margin-right: 50px;

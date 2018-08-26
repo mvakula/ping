@@ -82,12 +82,12 @@ status = stateless
       let
         pingBars = (\ping -> pingBar ping) <$> props.pings
         avg = R.div { children:
-          [ R.div { children: [ R.text "AVG" ] }
+          [ R.div { className: "title", children: [ R.text "AVG" ] }
           , R.div { children: [ R.text $ (show $ avgLatency props.pings) <> " ms" ] }
           ]}
         name = R.div { children:
-          [ R.div { children: [ R.text "URL" ] }
-          , R.div { children: [ R.text props.endpoint.url ] }
+          [ R.div { className: "title", children: [ R.text props.endpoint.name ] }
+          , R.div { className: "url", children: [ R.text props.endpoint.url ] }
           ]}
         deleteBtn = R.button
           { children: [ R.text "Delete" ]
@@ -102,9 +102,9 @@ status = stateless
           }
       in
         R.div { className: "status", children:
-          [ R.div { className: "name", children: [ name ] }
+          [ R.div { className: "name-and-url", children: [ name ] }
           , R.div { className: "avg", children: [ avg ] }
-          , R.div { className: "avg", children: [ deleteBtn ] }
+          , R.div { className: "delete-btn-container", children: [ deleteBtn ] }
           , R.div { className: "pings", children: pingBars }
           ]
         }
