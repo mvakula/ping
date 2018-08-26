@@ -42,3 +42,21 @@
   align-items: center;
   margin-right: 50px;
 }
+
+form.add-endpoint {
+  max-width: 300px;
+  .form-row {
+    display: flex;
+    justify-content: flex-end;
+    padding: 5px;
+    .submit {
+      max-width: 60px;
+    }
+    & > label {
+      flex: 1;
+    }
+    & > input {
+      flex: 2;
+    }
+  }
+}
