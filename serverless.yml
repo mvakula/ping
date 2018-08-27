@@ -9,6 +9,9 @@ provider:
     SERVER_URL: ${file(./env/${self:provider.stage}.json):serverUrl}
 
 functions:
+  auth:
+    handler: lambdas/auth.handler
+    cors: true
 
   pingServices:
     handler: lambdas/pingServices.handler
