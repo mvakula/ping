@@ -149,48 +149,52 @@ addNewEndPoint = react
                   Left e -> do
                     logShow e
       in
-        R.form
-          { className: "add-endpoint"
-          , onSubmit: handleOnSubmit
-          , children:
-            [ R.div
-              { className: "form-row", children:
-                [ R.label
-                  { htmlFor: "name"
-                  , children: [ R.text "name" ]
-                  }
-                , R.input
-                  { type: "text"
-                  , id: "name"
-                  , required: true
-                  , value: state.name
-                  , onChange: handleOnChangeName
-                  }
-                ]
-              }
-            , R.div
-              { className: "form-row", children:
-                [ R.label
-                  { htmlFor: "url"
-                  , children: [ R.text "url" ]
-                  }
-                , R.input
-                  { type: "text"
-                  , id: "url"
-                  , required: true
-                  , value: state.url
-                  , onChange: handleOnChangeUrl
-                  }
-                ]
-              }
-            , R.div
-              { className: "form-row", children:
-                [ R.input
-                  { type: "submit"
-                  , className: "submit"
-                  , value: "Submit"
-                  }
-                ]
-              }
-            ]
-          }
+        R.div { children:
+          [ R.h3 { children: [ R.text "Add new endpoint" ] }
+          , R.form
+            { className: "add-endpoint"
+            , onSubmit: handleOnSubmit
+            , children:
+              [ R.div
+                { className: "form-row", children:
+                  [ R.label
+                    { htmlFor: "name"
+                    , children: [ R.text "name" ]
+                    }
+                  , R.input
+                    { type: "text"
+                    , id: "name"
+                    , required: true
+                    , value: state.name
+                    , onChange: handleOnChangeName
+                    }
+                  ]
+                }
+              , R.div
+                { className: "form-row", children:
+                  [ R.label
+                    { htmlFor: "url"
+                    , children: [ R.text "url" ]
+                    }
+                  , R.input
+                    { type: "text"
+                    , id: "url"
+                    , required: true
+                    , value: state.url
+                    , onChange: handleOnChangeUrl
+                    }
+                  ]
+                }
+              , R.div
+                { className: "form-row", children:
+                  [ R.input
+                    { type: "submit"
+                    , className: "submit"
+                    , value: "Submit"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
