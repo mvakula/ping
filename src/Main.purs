@@ -145,6 +145,7 @@ addNewEndPoint = react
                 case res of
                   Right response -> do
                     props.refreshEndpoints'
+                    liftEffect $ setState _ { name = "", url = "" }
                   Left e -> do
                     logShow e
       in
@@ -162,6 +163,7 @@ addNewEndPoint = react
                   { type: "text"
                   , id: "name"
                   , required: true
+                  , value: state.name
                   , onChange: handleOnChangeName
                   }
                 ]
@@ -176,6 +178,7 @@ addNewEndPoint = react
                   { type: "text"
                   , id: "url"
                   , required: true
+                  , value: state.url
                   , onChange: handleOnChangeUrl
                   }
                 ]
