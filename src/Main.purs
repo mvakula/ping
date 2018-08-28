@@ -10,6 +10,7 @@ import Effect.Aff (Aff, attempt, launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Class.Console (logShow)
 import Effect.Timer (setInterval)
+import Login (login)
 import Milkis as M
 import React.Basic (ReactComponent, createElement, react)
 import React.Basic.DOM as R
@@ -17,6 +18,7 @@ import Simple.JSON (read)
 import Status (status)
 import Types (Endpoint, PingData)
 import Utils (baseUrl, fetch)
+import Utils as Utils
 
 
 type State =
@@ -46,6 +48,7 @@ main = react { displayName: "Main", initialState, receiveProps, render }
       in
         R.div { children:
           [ createElement addEndPoint { refreshEndpoints' }
+          , createElement login {}
           ] <> ((\endpoint -> createElement status { endpoint, refreshEndpoints', pings: (filterPings endpoint.id) }) <$> state.endpoints)
         }
 
@@ -69,7 +72,9 @@ refreshPings setState' = do
 
 getEndpoints :: Aff (Maybe (Array Endpoint))
 getEndpoints = do
-  res <- attempt $ fetch (M.URL $ baseUrl <> "getEndpoints") M.defaultFetchOptions
+  headers <- liftEffect Utils.mkHeaders'
+  let opts = { method: M.getMethod, headers }
+  res <- attempt $ fetch (M.URL $ baseUrl <> "getEndpoints") opts
   case res of
     Right response -> do
       let statusCode = M.statusCode response
@@ -86,7 +91,9 @@ getEndpoints = do
 
 getPings :: Aff (Maybe (Array PingData))
 getPings = do
-  res <- attempt $ fetch (M.URL $ baseUrl <> "getPings") M.defaultFetchOptions
+  headers <- liftEffect Utils.mkHeaders'
+  let opts = { method: M.getMethod, headers }
+  res <- attempt $ fetch (M.URL $ baseUrl <> "getPings") opts
   case res of
     Right response -> do
       let statusCode = M.statusCode response

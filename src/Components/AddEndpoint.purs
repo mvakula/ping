@@ -14,6 +14,7 @@ import React.Basic.DOM.Events as DE
 import React.Basic.Events as Events
 import Simple.JSON (writeJSON)
 import Utils (baseUrl, fetch)
+import Utils as Utils
 
 addEndPoint :: ReactComponent { refreshEndpoints' :: Aff Unit }
 addEndPoint = react
@@ -52,7 +53,7 @@ addEndPoint = react
                   opts =
                     { method: M.postMethod
                     , body
-                    , headers: M.makeHeaders { "Content-Type": "application/json" }
+                    , headers: Utils.mkHeaders
                     }
                 res <- attempt $ fetch (M.URL $ baseUrl <> "addEndpoint") opts
                 case res of

@@ -15,6 +15,7 @@ import React.Basic.Events as Events
 import Simple.JSON (writeJSON)
 import Types (Endpoint, PingData)
 import Utils (baseUrl, fetch)
+import Utils as Utils
 
 
 status :: ReactComponent { endpoint :: Endpoint, refreshEndpoints' :: Aff Unit, pings :: Array PingData }
@@ -75,7 +76,7 @@ deleteEndpoint id = do
     opts =
       { method: M.deleteMethod
       , body
-      , headers: M.makeHeaders { "Content-Type": "application/json" }
+      , headers: Utils.mkHeaders
       }
   res <- attempt $ fetch (M.URL $ baseUrl <> "deleteEndpoint") opts
   case res of

@@ -24,6 +24,7 @@ functions:
       - http:
           path: getPings
           method: get
+          authorizer: auth
           cors: true
 
   addEndpoint:
@@ -32,6 +33,7 @@ functions:
       - http:
           path: addEndpoint
           method: post
+          authorizer: auth
           cors: true
 
   getEndpoints:
@@ -40,6 +42,7 @@ functions:
       - http:
           path: getEndpoints
           method: get
+          authorizer: auth
           cors: true
 
   deleteEndpoint:
@@ -48,6 +51,7 @@ functions:
       - http:
           path: deleteEndpoint
           method: delete
+          authorizer: auth
           cors: true
 
 plugins:
