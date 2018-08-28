@@ -4,15 +4,15 @@
   "description": "",
   "main": "handler.js",
   "dependencies": {
-    "parcel": "^1.9.2",
     "pg": "^7.4.3",
-    "react": "^16.4.1",
-    "react-dom": "^16.4.1",
-    "serverless": "^1.27.3",
-    "serverless-offline": "^3.25.4"
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2",
+    "serverless": "^1.30.2"
   },
   "devDependencies": {
-    "node-sass": "^4.9.0"
+    "node-sass": "^4.9.3",
+    "parcel": "^1.9.7",
+    "serverless-offline": "^3.25.9"
   },
   "scripts": {
     "start": "parcel index.html --no-cache",
