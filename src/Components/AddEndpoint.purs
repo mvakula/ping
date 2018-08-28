@@ -8,7 +8,7 @@ import Effect.Aff (Aff, attempt, launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Class.Console (logShow)
 import Milkis as M
-import React.Basic (ReactComponent, react)
+import React.Basic as React
 import React.Basic.DOM as R
 import React.Basic.DOM.Events as DE
 import React.Basic.Events as Events
@@ -16,9 +16,9 @@ import Simple.JSON (writeJSON)
 import Utils (baseUrl, fetch)
 import Utils as Utils
 
-addEndPoint :: ReactComponent { refreshEndpoints' :: Aff Unit }
-addEndPoint = react
-  { displayName: "addNewEndPoint"
+addEndPoint :: React.Component { refreshEndpoints' :: Aff Unit }
+addEndPoint = React.component
+  { displayName: "addEndPoint"
   , initialState
   , receiveProps
   , render
@@ -28,8 +28,8 @@ addEndPoint = react
       { name: ""
       , url: ""
       }
-    receiveProps _ _ _ = pure unit
-    render props state setState =
+    receiveProps _ = pure unit
+    render { props, state, setState } =
       let
         handleOnChangeName =
           Events.handler

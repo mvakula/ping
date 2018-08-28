@@ -9,7 +9,8 @@ import Data.Maybe (Maybe(..))
 import Effect.Aff (Aff, attempt, launchAff_)
 import Effect.Class.Console (logShow)
 import Milkis as M
-import React.Basic (JSX, ReactComponent, stateless)
+import React.Basic (JSX)
+import React.Basic as React
 import React.Basic.DOM as R
 import React.Basic.Events as Events
 import Simple.JSON (writeJSON)
@@ -18,8 +19,8 @@ import Utils (baseUrl, fetch)
 import Utils as Utils
 
 
-status :: ReactComponent { endpoint :: Endpoint, refreshEndpoints' :: Aff Unit, pings :: Array PingData }
-status = stateless
+status :: React.Component { endpoint :: Endpoint, refreshEndpoints' :: Aff Unit, pings :: Array PingData }
+status = React.stateless
   { displayName: "Status"
   , render
   }

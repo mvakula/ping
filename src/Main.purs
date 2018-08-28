@@ -12,7 +12,7 @@ import Effect.Class.Console (logShow)
 import Effect.Timer (setInterval)
 import Login (login)
 import Milkis as M
-import React.Basic (ReactComponent, createElement, react)
+import React.Basic as React
 import React.Basic.DOM as R
 import Simple.JSON (read)
 import Status (status)
@@ -26,30 +26,30 @@ type State =
   , pings :: Array PingData
   }
 
-main :: ReactComponent {}
-main = react { displayName: "Main", initialState, receiveProps, render }
+main :: React.Component {}
+main = React.component { displayName: "Main", initialState, receiveProps, render }
   where
     initialState :: State
     initialState =
       { endpoints: []
       , pings: []
       }
-    receiveProps props state setState = launchAff_ do
+    receiveProps { props, state, setState } = launchAff_ do
       let setState' = liftEffect <<< setState
       refreshEndpoints setState'
       intervalId <- liftEffect $ setInterval 30000 $ launchAff_ do
         refreshPings setState'
       refreshPings setState'
-    render props state setState =
+    render { props, state, setState } =
       let
         setState' = liftEffect <<< setState
         refreshEndpoints' = refreshEndpoints setState'
         filterPings id = Array.filter (\p -> p.endpointId == id) state.pings
       in
         R.div { children:
-          [ createElement addEndPoint { refreshEndpoints' }
-          , createElement login {}
-          ] <> ((\endpoint -> createElement status { endpoint, refreshEndpoints', pings: (filterPings endpoint.id) }) <$> state.endpoints)
+          [ React.element addEndPoint { refreshEndpoints' }
+          , React.element login {}
+          ] <> ((\endpoint -> React.element status { endpoint, refreshEndpoints', pings: (filterPings endpoint.id) }) <$> state.endpoints)
         }
 
 refreshEndpoints :: ((State -> State) -> Aff Unit) -> Aff Unit

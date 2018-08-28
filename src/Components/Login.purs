@@ -5,7 +5,7 @@ import Prelude
 
 import Data.Maybe (fromMaybe)
 import Effect.Unsafe (unsafePerformEffect)
-import React.Basic (ReactComponent, react)
+import React.Basic as React
 import React.Basic.DOM as R
 import React.Basic.DOM.Events as DE
 import React.Basic.Events as Events
@@ -16,8 +16,8 @@ import Web.Storage.Storage as LS
 window' :: Window
 window' = unsafePerformEffect window
 
-login :: ReactComponent {}
-login = react
+login :: React.Component {}
+login = React.component
   { displayName: "Login"
   , initialState
   , receiveProps
@@ -28,8 +28,8 @@ login = react
       { user: ""
       , pass: ""
       }
-    receiveProps _ _ _ = pure unit
-    render props state setState =
+    receiveProps _ = pure unit
+    render { props, state, setState } =
       let
         handleOnChangeUser =
           Events.handler
