@@ -34,12 +34,17 @@ main = React.component { displayName: "Main", initialState, receiveProps, render
       { endpoints: []
       , pings: []
       }
-    receiveProps { props, state, setState } = launchAff_ do
+    receiveProps { isFirstMount, props, state, setState } = launchAff_ do
       let setState' = liftEffect <<< setState
-      refreshEndpoints setState'
-      intervalId <- liftEffect $ setInterval 30000 $ launchAff_ do
-        refreshPings setState'
-      refreshPings setState'
+      case isFirstMount of
+        true -> do
+          intervalId <- liftEffect $ setInterval 30000 $ launchAff_ do
+            refreshPings setState'
+            pure unit
+          refreshEndpoints setState'
+          refreshPings setState'
+        false ->
+          pure unit
     render { props, state, setState } =
       let
         setState' = liftEffect <<< setState
