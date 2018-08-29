@@ -8,8 +8,10 @@
 
 .header {
   grid-area: head;
-  .login {
+  .login, .logout {
     float: right;
+  }
+  .login {
     form {
       .form-row {
         padding: 5px;
@@ -24,7 +26,6 @@
         }
       }
     }
-
   }
 }
 

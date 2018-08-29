@@ -24,6 +24,19 @@ window' = unsafePerformEffect window
 fetch :: M.Fetch
 fetch = M.fetch windowFetch
 
+isLoggedIn :: Boolean
+isLoggedIn = do
+  let
+    localStorage' = unsafePerformEffect $ localStorage window'
+    user = unsafePerformEffect $ LS.getItem "user" localStorage'
+    pass = unsafePerformEffect $ LS.getItem "pass" localStorage'
+  case user, pass of
+    Just user', Just pass' ->
+      true
+    _, _ -> do
+      false
+
+
 type Creds = { user :: String , pass :: String }
 
 getCreds :: Effect Creds

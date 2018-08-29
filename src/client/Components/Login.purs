@@ -16,7 +16,7 @@ import Web.Storage.Storage as LS
 window' :: Window
 window' = unsafePerformEffect window
 
-login :: React.Component {}
+login :: React.Component { isLoggedIn :: Boolean }
 login = React.component
   { displayName: "Login"
   , initialState
@@ -49,52 +49,68 @@ login = React.component
                 LS.setItem "user" state.user localStorage'
                 LS.setItem "pass" state.pass localStorage'
                 pure unit
-      in
-        R.div { className: "login", children:
-          [ R.div { children: [ R.text "Login" ] }
-          , R.form
-            { onSubmit: handleOnSubmit
-            , children:
-              [ R.div
-                { className: "form-row", children:
-                  [ R.label
-                    { htmlFor: "user"
-                    , children: [ R.text "user" ]
-                    }
-                  , R.input
-                    { type: "text"
-                    , id: "user"
-                    , required: true
-                    , value: state.user
-                    , onChange: handleOnChangeUser
-                    }
-                  ]
-                }
-              , R.div
-                { className: "form-row", children:
-                  [ R.label
-                    { htmlFor: "pass"
-                    , children: [ R.text "pass" ]
-                    }
-                  , R.input
-                    { type: "text"
-                    , id: "pass"
-                    , required: true
-                    , value: state.pass
-                    , onChange: handleOnChangePass
-                    }
-                  ]
-                }
-              , R.div
-                { className: "form-row", children:
-                  [ R.input
-                    { type: "submit"
-                    , className: "login-btn"
-                    , value: "Login"
-                    }
-                  ]
-                }
-              ]
+        loginForm =
+          R.div { className: "login", children:
+            [ R.div { children: [ R.text "Login" ] }
+            , R.form
+              { onSubmit: handleOnSubmit
+              , children:
+                [ R.div
+                  { className: "form-row", children:
+                    [ R.label
+                      { htmlFor: "user"
+                      , children: [ R.text "user" ]
+                      }
+                    , R.input
+                      { type: "text"
+                      , id: "user"
+                      , required: true
+                      , value: state.user
+                      , onChange: handleOnChangeUser
+                      }
+                    ]
+                  }
+                , R.div
+                  { className: "form-row", children:
+                    [ R.label
+                      { htmlFor: "pass"
+                      , children: [ R.text "pass" ]
+                      }
+                    , R.input
+                      { type: "text"
+                      , id: "pass"
+                      , required: true
+                      , value: state.pass
+                      , onChange: handleOnChangePass
+                      }
+                    ]
+                  }
+                , R.div
+                  { className: "form-row", children:
+                    [ R.input
+                      { type: "submit"
+                      , className: "login-btn"
+                      , value: "Login"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        logoutBtn =
+          R.button
+            { className: "logout"
+            , children: [ R.text "logout" ]
+            , onClick:
+                Events.handler_ do
+                  localStorage' <- localStorage window'
+                  LS.removeItem "user" localStorage'
+                  LS.removeItem "pass" localStorage'
+                  pure unit
             }
-          ]
-        }
+      in
+        if props.isLoggedIn
+          then logoutBtn
+          else loginForm
+
