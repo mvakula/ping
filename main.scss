@@ -1,3 +1,38 @@
+.wrapper {
+  display: grid;
+  grid-template-rows: 0px 0px;
+  grid-template-areas:
+    "head"
+    "content";
+}
+
+.header {
+  grid-area: head;
+  .login {
+    float: right;
+    form {
+      .form-row {
+        padding: 5px;
+        .login-btn {
+          max-width: 60px;
+        }
+        input {
+          width: 100px;
+        }
+        label {
+          margin-right: 5px;
+        }
+      }
+    }
+
+  }
+}
+
+.content {
+  grid-area: content;
+  max-width: 900px;
+}
+
 .pings {
   display: flex;
   flex-direction: row;

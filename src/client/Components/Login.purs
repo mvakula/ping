@@ -50,11 +50,10 @@ login = React.component
                 LS.setItem "pass" state.pass localStorage'
                 pure unit
       in
-        R.div { children:
+        R.div { className: "login", children:
           [ R.div { children: [ R.text "Login" ] }
           , R.form
-            { className: "login"
-            , onSubmit: handleOnSubmit
+            { onSubmit: handleOnSubmit
             , children:
               [ R.div
                 { className: "form-row", children:

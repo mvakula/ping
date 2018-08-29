@@ -51,10 +51,13 @@ main = React.component { displayName: "Main", initialState, receiveProps, render
         refreshEndpoints' = refreshEndpoints setState'
         filterPings id = Array.filter (\p -> p.endpointId == id) state.pings
       in
-        R.div { children:
-          [ React.element addEndPoint { refreshEndpoints' }
-          , React.element login {}
-          ] <> ((\endpoint -> React.element status { endpoint, refreshEndpoints', pings: (filterPings endpoint.id) }) <$> state.endpoints)
+        R.div { className: "wrapper", children:
+          [ R.div { className: "header", children: [ React.element login {} ]}
+          , R.div { className: "content", children:
+              [ React.element addEndPoint { refreshEndpoints' }
+              ] <> ((\endpoint -> React.element status { endpoint, refreshEndpoints', pings: (filterPings endpoint.id) }) <$> state.endpoints)
+            }
+          ]
         }
 
 refreshEndpoints :: ((State -> State) -> Aff Unit) -> Aff Unit
