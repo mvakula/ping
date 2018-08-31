@@ -113,17 +113,6 @@ addEndPoint = React.component
               }
             ]
           }
-        -- showFormBtn =
-        --   R.button
-        --     { className: "show-form-btn"
-        --     , children: [ R.text "Add new"]
-            -- , onClick:
-            --       Event.handler
-            --         DE.targetValue
-            --           \value ->
-            --             setState _ { showForm: true }
-            -- }
-
         showFormBtn =
           R.button
             { className: "show-form-btn"
