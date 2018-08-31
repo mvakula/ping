@@ -65,7 +65,7 @@ addEndPoint = React.component
                     logShow e
         addEndpointForm  =
           R.div { children:
-            [ R.h3 { children: [ R.text "Add new endpoint" ] }
+            [ R.div { children: [ R.text "Add new endpoint" ] }
             , R.form
               { className: "add-endpoint"
               , onSubmit: handleOnSubmit

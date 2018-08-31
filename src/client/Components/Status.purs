@@ -59,7 +59,7 @@ status = React.stateless
 pingBar :: PingData -> JSX
 pingBar ping = R.div
   { className: "ping-bar" <> if ping.statusCode /= 200 then " error" else ""
-  , style: R.css { height: ping.latency / 20 }
+  , style: R.css { height: ping.latency / 40 }
   , title: show ping.latency
   }
 
