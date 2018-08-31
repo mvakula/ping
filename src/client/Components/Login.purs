@@ -9,6 +9,7 @@ import React.Basic as React
 import React.Basic.DOM as R
 import React.Basic.DOM.Events as DE
 import React.Basic.Events as Events
+import Utils as Utils
 import Web.HTML (Window, window)
 import Web.HTML.Window (localStorage)
 import Web.Storage.Storage as LS
@@ -16,7 +17,10 @@ import Web.Storage.Storage as LS
 window' :: Window
 window' = unsafePerformEffect window
 
-login :: React.Component { isLoggedIn :: Boolean }
+localStorage' :: LS.Storage
+localStorage' = unsafePerformEffect $ localStorage window'
+
+login :: React.Component {}
 login = React.component
   { displayName: "Login"
   , initialState
@@ -27,6 +31,7 @@ login = React.component
     initialState =
       { user: ""
       , pass: ""
+      , isLoggedIn: Utils.isLoggedIn localStorage'
       }
     receiveProps _ = pure unit
     render { props, state, setState } =
@@ -45,9 +50,9 @@ login = React.component
           Events.handler
             DE.preventDefault $
               \_ -> do
-                localStorage' <- localStorage window'
                 LS.setItem "user" state.user localStorage'
                 LS.setItem "pass" state.pass localStorage'
+                setState _ { isLoggedIn = Utils.isLoggedIn localStorage' }
                 pure unit
         loginForm =
           R.div { className: "login", children:
@@ -104,13 +109,13 @@ login = React.component
             , children: [ R.text "logout" ]
             , onClick:
                 Events.handler_ do
-                  localStorage' <- localStorage window'
                   LS.removeItem "user" localStorage'
                   LS.removeItem "pass" localStorage'
+                  setState _ { isLoggedIn =  Utils.isLoggedIn localStorage' }
                   pure unit
             }
       in
-        if props.isLoggedIn
+        if state.isLoggedIn
           then logoutBtn
           else loginForm
 

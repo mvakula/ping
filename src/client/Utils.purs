@@ -13,6 +13,7 @@ import Milkis.Impl.Window (windowFetch)
 import Record as Record
 import Web.HTML (Window, window)
 import Web.HTML.Window (localStorage)
+import Web.Storage.Storage (Storage)
 import Web.Storage.Storage as LS
 
 foreign import baseUrl :: String
@@ -24,18 +25,16 @@ window' = unsafePerformEffect window
 fetch :: M.Fetch
 fetch = M.fetch windowFetch
 
-isLoggedIn :: Boolean
-isLoggedIn = do
+isLoggedIn :: Storage -> Boolean
+isLoggedIn ls = do
   let
-    localStorage' = unsafePerformEffect $ localStorage window'
-    user = unsafePerformEffect $ LS.getItem "user" localStorage'
-    pass = unsafePerformEffect $ LS.getItem "pass" localStorage'
+    user = unsafePerformEffect $ LS.getItem "user" ls
+    pass = unsafePerformEffect $ LS.getItem "pass" ls
   case user, pass of
     Just user', Just pass' ->
       true
     _, _ -> do
       false
-
 
 type Creds = { user :: String , pass :: String }
 
