@@ -124,7 +124,7 @@ getPings' = do
   connectionInfo <- getConnectionInfo
   pool <- liftEffect $ PG.mkPool connectionInfo
   PG.withClient pool $ \c -> do
-    let queryStr = (PG.Query "SELECT * FROM pings" :: PG.Query PingColumns )
+    let queryStr = (PG.Query "SELECT * FROM pings WHERE timestamp > now() - interval '1 day'" :: PG.Query PingColumns )
     pings <- PG.query_ read' queryStr c
     pure $ pingsFromColumns <$> pings
 
