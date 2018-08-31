@@ -25,7 +25,8 @@ addEndPoint = React.component
   }
   where
     initialState =
-      { name: ""
+      { showForm: false
+      , name: ""
       , url: ""
       }
     receiveProps _ = pure unit
@@ -59,56 +60,78 @@ addEndPoint = React.component
                 case res of
                   Right response -> do
                     props.refreshEndpoints'
-                    liftEffect $ setState _ { name = "", url = "" }
+                    liftEffect $ setState _ { name = "", url = "", showForm = false }
                   Left e -> do
                     logShow e
-      in
-        R.div { children:
-          [ R.h3 { children: [ R.text "Add new endpoint" ] }
-          , R.form
-            { className: "add-endpoint"
-            , onSubmit: handleOnSubmit
-            , children:
-              [ R.div
-                { className: "form-row", children:
-                  [ R.label
-                    { htmlFor: "name"
-                    , children: [ R.text "name" ]
-                    }
-                  , R.input
-                    { type: "text"
-                    , id: "name"
-                    , required: true
-                    , value: state.name
-                    , onChange: handleOnChangeName
-                    }
-                  ]
-                }
-              , R.div
-                { className: "form-row", children:
-                  [ R.label
-                    { htmlFor: "url"
-                    , children: [ R.text "url" ]
-                    }
-                  , R.input
-                    { type: "text"
-                    , id: "url"
-                    , required: true
-                    , value: state.url
-                    , onChange: handleOnChangeUrl
-                    }
-                  ]
-                }
-              , R.div
-                { className: "form-row", children:
-                  [ R.input
-                    { type: "submit"
-                    , className: "submit"
-                    , value: "Submit"
-                    }
-                  ]
-                }
-              ]
+        addEndpointForm  =
+          R.div { children:
+            [ R.h3 { children: [ R.text "Add new endpoint" ] }
+            , R.form
+              { className: "add-endpoint"
+              , onSubmit: handleOnSubmit
+              , children:
+                [ R.div
+                  { className: "form-row", children:
+                    [ R.label
+                      { htmlFor: "name"
+                      , children: [ R.text "name" ]
+                      }
+                    , R.input
+                      { type: "text"
+                      , id: "name"
+                      , required: true
+                      , value: state.name
+                      , onChange: handleOnChangeName
+                      }
+                    ]
+                  }
+                , R.div
+                  { className: "form-row", children:
+                    [ R.label
+                      { htmlFor: "url"
+                      , children: [ R.text "url" ]
+                      }
+                    , R.input
+                      { type: "text"
+                      , id: "url"
+                      , required: true
+                      , value: state.url
+                      , onChange: handleOnChangeUrl
+                      }
+                    ]
+                  }
+                , R.div
+                  { className: "form-row", children:
+                    [ R.input
+                      { type: "submit"
+                      , className: "submit"
+                      , value: "Submit"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        -- showFormBtn =
+        --   R.button
+        --     { className: "show-form-btn"
+        --     , children: [ R.text "Add new"]
+            -- , onClick:
+            --       Event.handler
+            --         DE.targetValue
+            --           \value ->
+            --             setState _ { showForm: true }
+            -- }
+
+        showFormBtn =
+          R.button
+            { className: "show-form-btn"
+            , children: [ R.text "Add new"]
+            , onClick:
+                Events.handler_ do
+                  setState \s -> s { showForm = true }
             }
-          ]
-        }
+      in if state.showForm
+        then addEndpointForm
+        else showFormBtn
