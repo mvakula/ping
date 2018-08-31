@@ -72,7 +72,7 @@
 
 .delete-btn-container,
 .avg {
-  min-width: 100px;
+  min-width: 80px;
 }
 
 .name-and-url,
@@ -80,7 +80,14 @@
 .delete-btn-container {
   display: flex;
   align-items: flex-end;
-  margin-right: 50px;
+}
+
+.name-and-url {
+  margin-right: 20px;
+}
+
+.delete-btn-container {
+  margin-left: 20px;
 }
 
 form.add-endpoint {

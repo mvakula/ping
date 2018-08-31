@@ -51,8 +51,8 @@ status = React.stateless
         R.div { className: "status", children:
           [ R.div { className: "name-and-url", children: [ name ] }
           , R.div { className: "avg", children: [ avg ] }
-          , R.div { className: "delete-btn-container", children: [ deleteBtn ] }
           , R.div { className: "pings", children: pingBars }
+          , R.div { className: "delete-btn-container", children: [ deleteBtn ] }
           ]
         }
 
