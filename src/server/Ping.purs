@@ -12,6 +12,7 @@ import Effect.Class.Console (logShow)
 import Effect.Now (now)
 import Milkis as M
 import Milkis.Impl.Node (nodeFetch)
+import NotifySlack (notifySlack)
 import Types as Types
 
 fetch :: M.Fetch
@@ -31,4 +32,5 @@ ping url = do
       pure { statusCode: M.statusCode res, latency: latency }
     Left e -> do
       logShow e
+      notifySlack $ show e
       pure { statusCode: 500, latency: 0 }
