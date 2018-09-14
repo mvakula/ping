@@ -5,6 +5,7 @@ import Prelude
 import Control.Promise (Promise, fromAff)
 import Data.Bifunctor (lmap)
 import Data.Either (Either(..))
+import Data.Maybe (fromMaybe)
 import Data.Traversable (for)
 import Database.Postgres as PG
 import Database.Postgres.SqlValue (toSql)
@@ -12,39 +13,33 @@ import Effect (Effect)
 import Effect.Aff (Aff, Error, error)
 import Effect.Class (liftEffect)
 import Effect.Class.Console (logShow)
+import Effect.Unsafe (unsafePerformEffect)
 import Foreign (Foreign)
 import Milkis as M
-import Node.Encoding (Encoding(..))
-import Node.FS.Aff (readTextFile)
+import Node.Process (lookupEnv)
 import Ping as Ping
 import Simple.JSON as JSON
 import Types (Endpoint)
 import Types as Types
 
+
+getEnv :: String -> String
+getEnv env =
+  fromMaybe "" (unsafePerformEffect $ lookupEnv env)
+
 defaultConfig :: PG.ClientConfig
 defaultConfig =
-  { host: "localhost"
-  , database: "postgres"
+  { host: getEnv "PG_ENDPOINT"
+  , database: getEnv "PG_DB"
   , port: 5432
-  , user: "postgres"
-  , password: ""
-  , ssl: false
+  , user: getEnv "PG_USER"
+  , password: getEnv "PG_PW"
+  , ssl: true
   }
 
-readConfig :: Aff PG.ClientConfig
-readConfig = do
-  contents <- readTextFile UTF8 "./config.json"
-  case JSON.readJSON contents of
-    Right (config :: PG.ClientConfig) -> do
-      pure config
-    Left e -> do
-      logShow e
-      pure defaultConfig
-
-getConnectionInfo :: Aff PG.ConnectionInfo
-getConnectionInfo = do
-  clientConfig <- readConfig
-  pure $ PG.connectionInfoFromConfig clientConfig PG.defaultPoolConfig
+connectionInfo :: PG.ConnectionInfo
+connectionInfo =
+   PG.connectionInfoFromConfig defaultConfig PG.defaultPoolConfig
 
 type Body = {
   endpoint :: String
@@ -70,7 +65,6 @@ insertEndpoint body = fromAff do
 
 insertEndpoint' :: Types.EndpointBody () -> Aff Unit
 insertEndpoint' { url, name } = do
-  connectionInfo <- getConnectionInfo
   pool <- liftEffect $ PG.mkPool connectionInfo
   PG.withClient pool $ \c -> do
     let queryStr = PG.Query "INSERT INTO endpoints (url, name) VALUES ($1, $2)"
@@ -79,7 +73,6 @@ insertEndpoint' { url, name } = do
 
 insertPing :: { endpointId :: Int, latency :: Int, statusCode :: Int } -> Aff Unit
 insertPing { endpointId, latency, statusCode } = do
-  connectionInfo <- getConnectionInfo
   pool <- liftEffect $ PG.mkPool connectionInfo
   PG.withClient pool $ \c -> do
     let queryStr = PG.Query "INSERT INTO pings (endpoint_id, latency, status_code) VALUES ($1, $2, $3)"
@@ -106,7 +99,6 @@ getEndpoints = fromAff do
 
 getEndpoints' :: Aff (Array Endpoint)
 getEndpoints' = do
-  connectionInfo <- getConnectionInfo
   pool <- liftEffect $ PG.mkPool connectionInfo
   PG.withClient pool $ \c -> do
     let queryStr = (PG.Query "SELECT * FROM endpoints" :: PG.Query Endpoint )
@@ -121,7 +113,6 @@ type PingColumns =
 
 getPings' :: Aff (Array Types.PingData)
 getPings' = do
-  connectionInfo <- getConnectionInfo
   pool <- liftEffect $ PG.mkPool connectionInfo
   PG.withClient pool $ \c -> do
     let queryStr = (PG.Query "SELECT * FROM pings WHERE timestamp > now() - interval '1 day'" :: PG.Query PingColumns )
@@ -153,7 +144,6 @@ deleteEndpoint body = fromAff do
 
 deleteEndpoint' :: Int -> Aff Unit
 deleteEndpoint' id = do
-  connectionInfo <- getConnectionInfo
   pool <- liftEffect $ PG.mkPool connectionInfo
   PG.withClient pool $ \c -> do
     let queryStr = PG.Query "DELETE FROM endpoints WHERE id in ($1)"

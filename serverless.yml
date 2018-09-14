@@ -7,6 +7,13 @@ provider:
   stage: ${opt:stage, 'dev'}
   environment:
     SERVER_URL: ${file(./env/${self:provider.stage}.json):serverUrl}
+    PG_USER: ${env:PG_USER}
+    PG_PW: ${env:PG_PW}
+    PG_DB: ${env:PG_DB}
+    PG_ENDPOINT:
+      Fn::GetAtt:
+        - pgDB
+        - Endpoint.Address
 
 functions:
   auth:
@@ -65,6 +72,31 @@ resources:
         ResponseType: DEFAULT_4XX
         RestApiId:
           Ref: 'ApiGatewayRestApi'
+
+    pgSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: Access to Postgres
+        SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '5432'
+          ToPort: '5432'
+          CidrIp: 0.0.0.0/0
+    pgDB:
+      Type: "AWS::RDS::DBInstance"
+      Properties:
+        DBName: ${env:PG_DB}
+        AllocatedStorage: 5
+        DBInstanceClass: "db.t2.micro"
+        Engine: "postgres"
+        EngineVersion: "10.4"
+        MasterUsername: ${env:PG_USER}
+        MasterUserPassword: ${env:PG_PW}
+        VPCSecurityGroups:
+        - Fn::GetAtt:
+          - pgSecurityGroup
+          - GroupId
+      DeletionPolicy: "Snapshot"
 
 plugins:
   - serverless-offline
